@@ -3,7 +3,17 @@ plugins {
     id 'java-gradle-plugin'
     id 'org.jetbrains.kotlin.jvm' version '1.3.72'
     id 'org.jetbrains.kotlin.kapt' version "1.3.72"
+    id "com.gradle.plugin-publish" version "0.12.0"
 }
+
+ext {
+    thisPluginVersion = project.hasProperty('pluginVersion')?
+            project.property('pluginVersion'):
+            'snapshot'
+}
+
+group = 'org.mikeneck'
+version = thisPluginVersion
 
 repositories {
     jcenter()
@@ -25,9 +35,21 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        graalvmNativeImage {
+        savannaPlugin {
             id = 'org.mikeneck.savanna-gradle-plugin'
             implementationClass = 'org.mikeneck.savanna.SavannaPlugin'
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/mike-neck/savanna-gradle-plugin'
+    vcsUrl = 'https://github.com/mike-neck/savanna-gradle-plugin'
+    description = 'A gradle plugin for preventing no tests or to skip testing, inspired by https://github.com/kawasima/savanna-maven-plugin'
+    tags = ['joke', 'test']
+    plugins {
+        savannaPlugin {
+            displayName = 'Savanna Gradle Plugin'
         }
     }
 }
@@ -72,3 +94,5 @@ task savana(dependsOn: test) {
 }
 
 [tasks.check, tasks.build]*.finalizedBy('savana')
+
+
