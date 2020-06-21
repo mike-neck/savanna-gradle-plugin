@@ -47,8 +47,25 @@ test {
 
 task savana(dependsOn: test) {
     doLast {
-        def s = counts.get().size()
-        if (s == 0) {
+        def executedTests = counts.get()
+        def executedTestsIs0 = executedTests.empty
+
+        def testTaskState = test.state
+        def testIsExecuted = testTaskState.executed
+        def testIsSkipped = testTaskState.skipped
+        def testIsNoSource = testTaskState.noSource
+        def lionWillCome = 
+                executedTestsIs0 || 
+                (testIsExecuted && (testIsSkipped || testIsNoSource))
+        logger.info(
+                'test executed: {}(count: {}, skipped: {}, no-source: {}) ... thus lion {}',
+                testIsExecuted,
+                counts.get().size(),
+                testIsSkipped,
+                testIsNoSource,
+                lionWillCome? 'comes': 'never comes',
+        )
+        if (lionWillCome) {
             logger.lifecycle('show サバンナ')
         }
     }

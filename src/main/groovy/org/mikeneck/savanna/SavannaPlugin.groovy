@@ -24,10 +24,27 @@ class SavannaPlugin implements Plugin<Project> {
             group = 'savanna'
             description = 't-wada lion appears when no tests ran.'
             doLast {
-                if (testDescriptions.get().empty) {
+                def executedTests = testDescriptions.get()
+                def testTaskState = project.tasks.test.state
+                def testIsExecuted = testTaskState.executed
+                def testIsSkipped = testTaskState.skipped
+                def testIsNoSource = testTaskState.noSource
+                def lionWillCome =
+                        executedTests.empty ||
+                        testIsExecuted && (testIsSkipped || testIsNoSource)
+                logger.info(
+                        'test-task executed: {}(tests-count: {}, skipped: {}, no-source: {}) ... thus lion {}',
+                        testIsExecuted,
+                        executedTests.size(),
+                        testIsSkipped,
+                        testIsNoSource,
+                        lionWillCome? 'comes': 'never comes',
+                )
+                if (executedTests.empty || lionWillCome) {
                     def url = Thread.currentThread().contextClassLoader.getResource('savanna.txt')
                     logger.lifecycle(url.text)
-                }            }
+                }            
+            }
         }
 
         [project.tasks.check, project.tasks.build]*.finalizedBy('savanna')
