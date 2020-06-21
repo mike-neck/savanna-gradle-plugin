@@ -1,0 +1,36 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v1.3.0
+
+      - name: Cache Gradle
+        id: gradle
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: Run Tests
+        run: ./gradlew test
+
+      - name: Store reports
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: lion-report
+          path: build/reports/tests/test
